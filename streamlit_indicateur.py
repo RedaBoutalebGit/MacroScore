@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="Indicateur Trading", page_icon="📊", layout="wide")
-st.subheader("Economic Indicators")
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -68,29 +67,39 @@ data = pd.DataFrame(data).drop_duplicates()
 data["score"] = data.apply(calculate_result, axis=1)
 currency_scores = data.groupby("currency")["score"].sum().to_dict()
 
-# Forex Pair Search
-st.sidebar.subheader("Search Forex Pair")
-pair_input = st.sidebar.text_input("Enter Forex Pair (e.g., EURUSD):").upper()
-if pair_input in paires:
-    currency1 = paires_details[pair_input][0]
-    currency2 = paires_details[pair_input][1]
-    
-    # Fetch scores and Interest Rate difference
-    score1 = currency_scores.get(currency1, 0)
-    score2 = currency_scores.get(currency2, 0)
-    ir1 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency1)]["last"].values[0]
-    ir2 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency2)]["last"].values[0]
-    ir_diff = 1 if ir1 > ir2 else -1 if ir1 < ir2 else 0
-    
-    # Calculate Final Score
-    final_score = score1 - score2 + ir_diff
+# Navigation between pages
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Go to", ["Search Forex Pair", "Scores Table"])
 
-    # Display results
-    st.write(f"### Data for Pair: {pair_input}")
-    st.write(f"**Currency 1 ({currency1})**")
-    st.dataframe(data[data["currency"] == currency1])
-    st.write(f"**Currency 2 ({currency2})**")
-    st.dataframe(data[data["currency"] == currency2])
-    st.write(f"**Final Score**: {final_score}")
-else:
-    st.write("Enter a valid Forex Pair to display its data.")
+if page == "Search Forex Pair":
+    st.subheader("Search Forex Pair")
+    pair_input = st.text_input("Enter Forex Pair (e.g., EURUSD):").upper()
+    if pair_input in paires:
+        currency1 = paires_details[pair_input][0]
+        currency2 = paires_details[pair_input][1]
+        
+        # Fetch scores and Interest Rate difference
+        score1 = currency_scores.get(currency1, 0)
+        score2 = currency_scores.get(currency2, 0)
+        ir1 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency1)]["last"].values[0]
+        ir2 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency2)]["last"].values[0]
+        ir_diff = 1 if ir1 > ir2 else -1 if ir1 < ir2 else 0
+        
+        # Calculate Final Score
+        final_score = score1 - score2 + ir_diff
+
+        # Display results
+        st.write(f"### Data for Pair: {pair_input}")
+        st.write(f"**Currency 1 ({currency1})**")
+        st.dataframe(data[data["currency"] == currency1])
+        st.write(f"**Currency 2 ({currency2})**")
+        st.dataframe(data[data["currency"] == currency2])
+        st.write(f"**Final Score**: {final_score}")
+    else:
+        st.write("Enter a valid Forex Pair to display its data.")
+
+elif page == "Scores Table":
+    st.subheader("Scores Table for All Currencies")
+    # Create a table summarizing all scores
+    score_table = pd.DataFrame(currency_scores.items(), columns=["Currency", "Score"])
+    st.dataframe(score_table)
