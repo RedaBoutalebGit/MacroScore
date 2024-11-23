@@ -117,4 +117,5 @@ if page == "Search Forex Pair":
 
 elif page == "Pair Scores Table":
     st.subheader("Pair Scores Table")
-    st.dataframe(table_3.style.background_gradient(cmap="coolwarm", subset=["Final Score"]))
+    st.dataframe(table_3.style.applymap(lambda val: color_gradient(val, table_3["Score Final"].min(), table_3["Score Final"].max()), subset=['Score Final']))
+
