@@ -64,19 +64,33 @@ with st.spinner('Fetching data...'):
 
 data = pd.DataFrame(data).drop_duplicates()
 
+# Calculate scores for each currency
+data["score"] = data.apply(calculate_result, axis=1)
+currency_scores = data.groupby("currency")["score"].sum().to_dict()
+
 # Forex Pair Search
 st.sidebar.subheader("Search Forex Pair")
 pair_input = st.sidebar.text_input("Enter Forex Pair (e.g., EURUSD):").upper()
 if pair_input in paires:
-    pair_data = {
-        "Currency 1": paires_details[pair_input][0],
-        "Currency 2": paires_details[pair_input][1],
-        "Indicators": {
-            paires_details[pair_input][0]: data[data["currency"] == paires_details[pair_input][0]].to_dict(orient="records"),
-            paires_details[pair_input][1]: data[data["currency"] == paires_details[pair_input][1]].to_dict(orient="records"),
-        }
-    }
-    st.write(f"Data for Pair: {pair_input}")
-    st.write(pair_data)
+    currency1 = paires_details[pair_input][0]
+    currency2 = paires_details[pair_input][1]
+    
+    # Fetch scores and Interest Rate difference
+    score1 = currency_scores.get(currency1, 0)
+    score2 = currency_scores.get(currency2, 0)
+    ir1 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency1)]["last"].values[0]
+    ir2 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency2)]["last"].values[0]
+    ir_diff = 1 if ir1 > ir2 else -1 if ir1 < ir2 else 0
+    
+    # Calculate Final Score
+    final_score = score1 - score2 + ir_diff
+
+    # Display results
+    st.write(f"### Data for Pair: {pair_input}")
+    st.write(f"**Currency 1 ({currency1})**")
+    st.dataframe(data[data["currency"] == currency1])
+    st.write(f"**Currency 2 ({currency2})**")
+    st.dataframe(data[data["currency"] == currency2])
+    st.write(f"**Final Score**: {final_score}")
 else:
     st.write("Enter a valid Forex Pair to display its data.")
