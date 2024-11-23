@@ -67,9 +67,26 @@ data = pd.DataFrame(data).drop_duplicates()
 data["score"] = data.apply(calculate_result, axis=1)
 currency_scores = data.groupby("currency")["score"].sum().to_dict()
 
+# Calculate pair scores
+table_3 = {"Pair": [], "IR Diff": [], "Final Score": []}
+for pair in paires:
+    currency1, currency2 = paires_details[pair]
+    score1 = currency_scores.get(currency1, 0)
+    score2 = currency_scores.get(currency2, 0)
+    ir1 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency1)]["last"].values[0]
+    ir2 = data[(data["indicateur"] == "Interest Rate") & (data["currency"] == currency2)]["last"].values[0]
+    ir_diff = 1 if ir1 > ir2 else -1 if ir1 < ir2 else 0
+    final_score = score1 - score2 + ir_diff
+
+    table_3["Pair"].append(pair)
+    table_3["IR Diff"].append(ir_diff)
+    table_3["Final Score"].append(final_score)
+
+table_3 = pd.DataFrame(table_3).set_index("Pair")
+
 # Navigation between pages
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Search Forex Pair", "Scores Table"])
+page = st.sidebar.radio("Go to", ["Search Forex Pair", "Pair Scores Table"])
 
 if page == "Search Forex Pair":
     st.subheader("Search Forex Pair")
@@ -98,8 +115,6 @@ if page == "Search Forex Pair":
     else:
         st.write("Enter a valid Forex Pair to display its data.")
 
-elif page == "Scores Table":
-    st.subheader("Scores Table for All Currencies")
-    # Create a table summarizing all scores
-    score_table = pd.DataFrame(currency_scores.items(), columns=["Currency", "Score"])
-    st.dataframe(score_table)
+elif page == "Pair Scores Table":
+    st.subheader("Pair Scores Table")
+    st.dataframe(table_3.style.background_gradient(cmap="coolwarm", subset=["Final Score"]))
