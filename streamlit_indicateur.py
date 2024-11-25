@@ -93,7 +93,7 @@ def color_gradient(val, min_val, max_val):
      #   st.write(paires[mid_index:])
 #with col3:
  #   st.write("List of indicators:", indicators_list)
-
+#
 # Scrap
 data = []
 with st.spinner('Chargement des données...'):
