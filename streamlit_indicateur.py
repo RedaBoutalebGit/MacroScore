@@ -77,8 +77,8 @@ def color_gradient(val, min_val, max_val):
         color_hex = f'rgb({interpolated_color_green[0]}, {interpolated_color_green[1]}, {interpolated_color_green[2]})'
     
     return f'background-color: {color_hex}'
-col1, col2, col3 = st.columns(3)
 '''
+col1, col2, col3 = st.columns(3)
 with col1:
     st.write("List of currencies:")
     st.dataframe(pd.DataFrame({"Country": countries, "Currencies": currencies}).set_index("Country"))
