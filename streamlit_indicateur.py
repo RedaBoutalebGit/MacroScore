@@ -3,7 +3,6 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
-import re
 
 
 st.set_page_config(page_title="Trading Fury",page_icon="📊",layout="wide",)
@@ -27,10 +26,11 @@ for pair in paires:
 indicators_list = ['GDP Growth Rate', "Inflation Rate MoM", "Interest Rate", "Manufacturing PMI","Services PMI","Retail Sales MoM", "Unemployment Rate"]
 indicators_last_previous = ["GDP Growth Rate", "Interest Rate", "Manufacturing PMI", "Services PMI", "Retail Sales MoM"]
 indicators_previous_last = ["Inflation Rate MoM",'Unemployment Rate']
-
+# Functions
 def get_currency_from_country(country):
     return country_to_currency.get(country.lower(), "Pays inconnu")
-
+def get_country_from_currency(currency):
+    return currency_to_country.get(currency.upper(), "Devise inconnue")
 def calculate_result(row):
     if row["indicateur"] in indicators_last_previous:
         diff = row["last"] - row["previous"]
@@ -48,7 +48,6 @@ def calculate_result(row):
             return 1
         else:
             return -1
-
 def color_gradient(val, min_val, max_val):
     # Plages définies
     red_min, red_max = min_val, 0   # Plage rouge : entre -10 et 0
@@ -80,22 +79,24 @@ def color_gradient(val, min_val, max_val):
     
     return f'background-color: {color_hex}'
 
-#function to filter pair details
-def filter_pair_details(table_3, pair):
-    if pair in table_3.index:
-        return table_3.loc[[pair]]
-    return pd.DataFrame()
-
-# Create tabs for better navigation
-tab1, tab2, tab3 = st.tabs([
-    "Economic Data 📈", 
-    "Currencies Score 💯", 
-    "Pair Scoring 📊"
-])
-
-# Scraping and data processing
+#col1, col2, col3 = st.columns(3)
+#with col1:
+ #   st.write("List of currencies:")
+  #  st.dataframe(pd.DataFrame({"Country": countries, "Currencies": currencies}).set_index("Country"))
+#with col2:
+ #   st.write("List of pairs:")
+  #  colA, colB = st.columns(2)
+   # mid_index = len(paires) // 2
+    #with colA:
+     #   st.write(paires[:mid_index])
+    #with colB:
+     #   st.write(paires[mid_index:])
+#with col3:
+ #   st.write("List of indicators:", indicators_list)
+#
+# Scrap
 data = []
-with st.spinner('Loading data...'):
+with st.spinner('Chargement des données...'):
     for i,country in enumerate(countries):
         url = f"https://tradingeconomics.com/{country}/indicators" 
         response = requests.get(url, headers=headers)
@@ -110,12 +111,15 @@ with st.spinner('Loading data...'):
                         'indicateur': cols[0].get_text(strip=True),
                         'last': float(cols[1].get_text(strip=True)),
                         'previous': float(cols[2].get_text(strip=True)),
+                        # 'le_plus_élevé': cols[3].get_text(strip=True),
+                        # 'le_plus_bas': cols[4].get_text(strip=True),
+                        # 'unité': cols[5].get_text(strip=True),
+                        # 'date': cols[6].get_text(strip=True),
                         'currency': get_currency_from_country(country)
                     }
                     data.append(row_data)
         else:
-            print(f"Error fetching page. HTTP Code: {response.status_code}")
-
+            print(f"Erreur lors de la récupération de la page. Code HTTP : {response.status_code}")
 data = pd.DataFrame(data).drop_duplicates()
 table_1 = (data.set_index(["currency", "indicateur"]).stack().unstack(level=[1, 2]))
 table_1.columns = pd.MultiIndex.from_tuples([(indicateur, stat) for indicateur, stat in table_1.columns],names=["indicateur", ""])
@@ -125,6 +129,9 @@ for indic in indicators_list:
     sort_list.append((indic, 'previous'))
 table_1 = table_1[sort_list]
 table_1 = table_1.reindex([get_currency_from_country(count) for count in countries])
+st.title("Economic Data 📈")
+st.dataframe(table_1,use_container_width =True)
+
 
 table_2 = data.copy()
 table_2["score"] = table_2.apply(calculate_result, axis=1)
@@ -135,6 +142,9 @@ columns_table_2 = indicators_list.copy()
 columns_table_2.insert(0, "score")
 table_2 = table_2[columns_table_2]
 table_2 = table_2.reindex([get_currency_from_country(count) for count in countries])
+st.title("Currencies score💯")
+st.dataframe(table_2)
+
 
 table_3 = {"Paire": [],"IR Div.": [], "Score Final": []}
 for pair in paires:
@@ -151,46 +161,5 @@ for pair in paires:
     table_3['IR Div.'].append(ir_div)
     table_3['Score Final'].append(score_final)
 table_3 = pd.DataFrame(table_3).set_index("Paire")
-
-# Tab-based display
-with tab1:
-    st.title("Economic Data 📈")
-    st.dataframe(table_1, use_container_width=True)
-
-with tab2:
-    st.title("Currencies score 💯")
-    st.dataframe(table_2)
-
-with tab3:
-    st.title("Final scoring:")
-    st.dataframe(table_3.style.applymap(lambda val: color_gradient(val, table_3["Score Final"].min(), table_3["Score Final"].max()), subset=['Score Final']))
-
-
-# Sidebar additional info
-st.sidebar.title("🔍 Pair Search")
-search_pair = st.sidebar.text_input("Enter Currency Pair (e.g., EURUSD)", value="")
-
-# Validate and format pair input
-if search_pair:
-    # Normalize pair input (uppercase, remove spaces)
-    search_pair = re.sub(r'\s+', '', search_pair).upper()
-    
-    # Check if pair exists
-    if search_pair in table_3.index:
-        st.sidebar.success(f"Pair found: {search_pair}")
-        
-        # Create a new tab or section for pair details
-        pair_details = filter_pair_details(table_3, search_pair)
-        
-        st.title(f"Details for {search_pair}")
-        st.dataframe(
-            pair_details.style.applymap(
-                lambda val: color_gradient(val, table_3["Score Final"].min(), table_3["Score Final"].max()), 
-                subset=['Score Final']
-            )
-        )
-    else:
-        st.sidebar.warning("Pair not found. Try again.")
-
-st.sidebar.markdown("---")
-st.sidebar.info("Data sourced from Trading Economics © Othmane & Reda ")
+st.title("Final scoring:")
+st.dataframe(table_3.style.applymap(lambda val: color_gradient(val, table_3["Score Final"].min(), table_3["Score Final"].max()), subset=['Score Final']))
