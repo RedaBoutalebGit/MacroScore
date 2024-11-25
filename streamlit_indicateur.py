@@ -193,4 +193,4 @@ if search_pair:
         st.sidebar.warning("Pair not found. Try again.")
 
 st.sidebar.markdown("---")
-st.sidebar.info("Data sourced from Trading Economics © Othmane & Reda")
+st.sidebar.info("Data sourced from Trading Economics © Othmane & Reda ")
