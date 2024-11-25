@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
-import streamlit_authenticator as stauth
+
 
 st.set_page_config(page_title="Indicateur Trading",page_icon="📊",layout="wide",)
 st.subheader("Economic Indicators")
