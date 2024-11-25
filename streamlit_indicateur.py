@@ -27,6 +27,7 @@ for pair in paires:
 indicators_list = ['GDP Growth Rate', "Inflation Rate MoM", "Interest Rate", "Manufacturing PMI","Services PMI","Retail Sales MoM", "Unemployment Rate"]
 indicators_last_previous = ["GDP Growth Rate", "Interest Rate", "Manufacturing PMI", "Services PMI", "Retail Sales MoM"]
 indicators_previous_last = ["Inflation Rate MoM",'Unemployment Rate']
+
 def get_currency_from_country(country):
     return country_to_currency.get(country.lower(), "Pays inconnu")
 
@@ -79,31 +80,15 @@ def color_gradient(val, min_val, max_val):
     
     return f'background-color: {color_hex}'
 
-# Additional visualization functions
-
-
-# Sidebar for enhanced configuration
-st.sidebar.title("🌍 Trading Fury Pro")
-selected_countries = st.sidebar.multiselect(
-    "Select Countries", 
-    countries, 
-    default=countries
-)
-selected_indicators = st.sidebar.multiselect(
-    "Select Indicators", 
-    indicators_list, 
-    default=indicators_list
-)
 
 # Create tabs for better navigation
 tab1, tab2, tab3, tab4 = st.tabs([
     "Economic Data 📈", 
     "Currencies Score 💯", 
-    "Pair Scoring 📊", 
-    "Visualizations 📉"
+    "Pair Scoring 📊"
 ])
 
-# Scraping and data processing [EXACTLY as in your original code]
+# Scraping and data processing
 data = []
 with st.spinner('Loading data...'):
     for i,country in enumerate(countries):
@@ -178,4 +163,4 @@ with tab3:
 
 # Sidebar additional info
 st.sidebar.markdown("---")
-st.sidebar.info("Data sourced from Trading Economics")
+st.sidebar.info("Data sourced from Trading Economics © Othmane & Reda")
