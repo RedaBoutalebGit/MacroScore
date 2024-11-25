@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-st.set_page_config(page_title="Indicateur Trading",page_icon="📊",layout="wide",)
+st.set_page_config(page_title="Trading Fury MacroScoring",page_icon="📊",layout="wide",)
 st.subheader("Economic Indicators")
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36','Accept-Language': 'en-US,en;q=0.9','Accept-Encoding': 'gzip, deflate, br'}
@@ -129,6 +129,7 @@ for indic in indicators_list:
     sort_list.append((indic, 'previous'))
 table_1 = table_1[sort_list]
 table_1 = table_1.reindex([get_currency_from_country(count) for count in countries])
+st.title("Economic Data 📈")
 st.dataframe(table_1,use_container_width =True)
 
 
@@ -141,6 +142,7 @@ columns_table_2 = indicators_list.copy()
 columns_table_2.insert(0, "score")
 table_2 = table_2[columns_table_2]
 table_2 = table_2.reindex([get_currency_from_country(count) for count in countries])
+st.title("Currencies score💯")
 st.dataframe(table_2)
 
 
@@ -159,5 +161,5 @@ for pair in paires:
     table_3['IR Div.'].append(ir_div)
     table_3['Score Final'].append(score_final)
 table_3 = pd.DataFrame(table_3).set_index("Paire")
-
+st.title("Final scoring:")
 st.dataframe(table_3.style.applymap(lambda val: color_gradient(val, table_3["Score Final"].min(), table_3["Score Final"].max()), subset=['Score Final']))
