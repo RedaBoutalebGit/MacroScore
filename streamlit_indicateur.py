@@ -87,11 +87,10 @@ def filter_pair_details(table_3, pair):
     return pd.DataFrame()
 
 # Create tabs for better navigation
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3 = st.tabs([
     "Economic Data 📈", 
     "Currencies Score 💯", 
-    "Pair Scoring 📊",
-    "ReadMe"
+    "Pair Scoring 📊"
 ])
 
 # Scraping and data processing
