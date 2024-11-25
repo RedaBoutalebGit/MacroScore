@@ -3,8 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
-import plotly.express as px
-import plotly.graph_objs as go
+
 
 
 st.set_page_config(page_title="Trading Fury",page_icon="📊",layout="wide",)
@@ -81,17 +80,7 @@ def color_gradient(val, min_val, max_val):
     return f'background-color: {color_hex}'
 
 # Additional visualization functions
-def create_economic_indicator_chart(data):
-    chart_data = data.copy()
-    chart_data = chart_data.pivot(index='currency', columns='indicateur', values=['last', 'previous'])
-    fig = px.line(chart_data, title='Economic Indicators Trend')
-    return fig
 
-def create_currency_score_heatmap(table_2):
-    fig = px.imshow(table_2.drop(columns=['score']), 
-                    labels=dict(x="Indicators", y="Currencies", color="Score"),
-                    title="Currency Performance Heatmap")
-    return fig
 
 # Sidebar for enhanced configuration
 st.sidebar.title("🌍 Trading Fury Pro")
@@ -186,15 +175,6 @@ with tab3:
     st.title("Final scoring:")
     st.dataframe(table_3.style.applymap(lambda val: color_gradient(val, table_3["Score Final"].min(), table_3["Score Final"].max()), subset=['Score Final']))
 
-with tab4:
-    st.title("Advanced Visualizations 📊")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.plotly_chart(create_economic_indicator_chart(data), use_container_width=True)
-    
-    with col2:
-        st.plotly_chart(create_currency_score_heatmap(table_2), use_container_width=True)
 
 # Sidebar additional info
 st.sidebar.markdown("---")
