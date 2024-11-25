@@ -79,20 +79,20 @@ def color_gradient(val, min_val, max_val):
     
     return f'background-color: {color_hex}'
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.write("List of currencies:")
-    st.dataframe(pd.DataFrame({"Country": countries, "Currencies": currencies}).set_index("Country"))
-with col2:
-    st.write("List of pairs:")
-    colA, colB = st.columns(2)
-    mid_index = len(paires) // 2
-    with colA:
-        st.write(paires[:mid_index])
-    with colB:
-        st.write(paires[mid_index:])
-with col3:
-    st.write("List of indicators:", indicators_list)
+#col1, col2, col3 = st.columns(3)
+#with col1:
+ #   st.write("List of currencies:")
+  #  st.dataframe(pd.DataFrame({"Country": countries, "Currencies": currencies}).set_index("Country"))
+#with col2:
+ #   st.write("List of pairs:")
+  #  colA, colB = st.columns(2)
+   # mid_index = len(paires) // 2
+    #with colA:
+     #   st.write(paires[:mid_index])
+    #with colB:
+     #   st.write(paires[mid_index:])
+#with col3:
+ #   st.write("List of indicators:", indicators_list)
 
 # Scrap
 data = []
