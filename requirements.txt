@@ -5,3 +5,4 @@ pandas
 numpy
 lxml
 streamlit_authenticator
+plotly
