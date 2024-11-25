@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
+import streamlit_authenticator as stauth
 
 st.set_page_config(page_title="Indicateur Trading",page_icon="📊",layout="wide",)
 st.subheader("Economic Indicators")
@@ -80,18 +81,18 @@ def color_gradient(val, min_val, max_val):
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    #st.write("List of currencies:")
+    st.write("List of currencies:")
     st.dataframe(pd.DataFrame({"Country": countries, "Currencies": currencies}).set_index("Country"))
 with col2:
-    #st.write("List of pairs:")
+    st.write("List of pairs:")
     colA, colB = st.columns(2)
     mid_index = len(paires) // 2
-    #with colA:
-     #   st.write(paires[:mid_index])
-    #with colB:
-    #    st.write(paires[mid_index:])
-#with col3:
-    #st.write("List of indicators:", indicators_list)
+    with colA:
+        st.write(paires[:mid_index])
+    with colB:
+        st.write(paires[mid_index:])
+with col3:
+    st.write("List of indicators:", indicators_list)
 
 # Scrap
 data = []
@@ -110,6 +111,10 @@ with st.spinner('Chargement des données...'):
                         'indicateur': cols[0].get_text(strip=True),
                         'last': float(cols[1].get_text(strip=True)),
                         'previous': float(cols[2].get_text(strip=True)),
+                        # 'le_plus_élevé': cols[3].get_text(strip=True),
+                        # 'le_plus_bas': cols[4].get_text(strip=True),
+                        # 'unité': cols[5].get_text(strip=True),
+                        # 'date': cols[6].get_text(strip=True),
                         'currency': get_currency_from_country(country)
                     }
                     data.append(row_data)
