@@ -78,6 +78,7 @@ def color_gradient(val, min_val, max_val):
     
     return f'background-color: {color_hex}'
 col1, col2, col3 = st.columns(3)
+'''
 with col1:
     st.write("List of currencies:")
     st.dataframe(pd.DataFrame({"Country": countries, "Currencies": currencies}).set_index("Country"))
@@ -91,7 +92,7 @@ with col2:
         st.write(paires[mid_index:])
 with col3:
     st.write("List of indicators:", indicators_list)
-
+'''
 # Scrap
 data = []
 with st.spinner('Chargement des données...'):
