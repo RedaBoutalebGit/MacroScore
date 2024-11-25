@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
-
+import re
 
 
 st.set_page_config(page_title="Trading Fury",page_icon="📊",layout="wide",)
@@ -80,9 +80,14 @@ def color_gradient(val, min_val, max_val):
     
     return f'background-color: {color_hex}'
 
+#function to filter pair details
+def filter_pair_details(table_3, pair):
+    if pair in table_3.index:
+        return table_3.loc[[pair]]
+    return pd.DataFrame()
 
 # Create tabs for better navigation
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3 = st.tabs([
     "Economic Data 📈", 
     "Currencies Score 💯", 
     "Pair Scoring 📊"
@@ -162,5 +167,30 @@ with tab3:
 
 
 # Sidebar additional info
+st.sidebar.title("🔍 Pair Search")
+search_pair = st.sidebar.text_input("Enter Currency Pair (e.g., EURUSD)", value="")
+
+# Validate and format pair input
+if search_pair:
+    # Normalize pair input (uppercase, remove spaces)
+    search_pair = re.sub(r'\s+', '', search_pair).upper()
+    
+    # Check if pair exists
+    if search_pair in table_3.index:
+        st.sidebar.success(f"Pair found: {search_pair}")
+        
+        # Create a new tab or section for pair details
+        pair_details = filter_pair_details(table_3, search_pair)
+        
+        st.title(f"Details for {search_pair}")
+        st.dataframe(
+            pair_details.style.applymap(
+                lambda val: color_gradient(val, table_3["Score Final"].min(), table_3["Score Final"].max()), 
+                subset=['Score Final']
+            )
+        )
+    else:
+        st.sidebar.warning("Pair not found. Try again.")
+
 st.sidebar.markdown("---")
 st.sidebar.info("Data sourced from Trading Economics © Othmane & Reda")
